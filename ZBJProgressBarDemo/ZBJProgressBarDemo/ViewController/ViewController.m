@@ -33,8 +33,9 @@
     self.progressBar.dotsWidth        = 10.0;
     self.progressBar.titleFont        = [UIFont fontWithName:@"Helvetica" size:10];
     self.progressBar.titleSpace       = 10;
-    self.progressBar.currentStep      = 3;
+    self.progressBar.currentStep      = 1;
     self.progressBar.titleHeight      = 40;
+    self.progressBar.animDuration     = 10;
     self.progressBar.titleArr         = arr;
     
     [self.view addSubview:self.progressBar];    

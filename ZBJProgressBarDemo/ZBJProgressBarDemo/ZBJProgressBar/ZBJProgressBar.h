@@ -15,8 +15,6 @@ typedef enum {
 #import <UIKit/UIKit.h>
 
 @interface ZBJProgressBar : UIView
-///共计步数
-@property (nonatomic) NSUInteger numberOfSteps;
 ///当前步数 default is 0
 @property (nonatomic) NSUInteger currentStep;
 ///未进行线的高度 default is 1

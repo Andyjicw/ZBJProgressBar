@@ -16,6 +16,9 @@
 @property (nonatomic, strong) NSArray   *filledViews;
 @property (nonatomic, strong) UIView    *showLabelView;
 
+///共计步数
+@property (nonatomic) NSUInteger numberOfSteps;
+
 @end
 
 @implementation ZBJProgressBar
@@ -28,7 +31,7 @@
     self.filledLineHeight = 1.f;
     self.linesHeight      = 2.f;
     self.dotsWidth        = 10.f;
-    self.animDuration     = 3.f;
+    self.animDuration     = .6f;
     self.animOption       = UIViewAnimationOptionCurveEaseIn;
     self.barColor         = [UIColor grayColor];
     self.tintColor        = [UIColor whiteColor];
@@ -55,12 +58,6 @@
         [self defaultInit];
     }
     return self;
-}
-
-- (void)setTitleArr:(NSArray *)titleArr {
-    _titleArr      = titleArr;
-    _numberOfSteps = titleArr.count;
-    [self prepareViews];
 }
 
 - (void)animateViewFromIndex:(NSUInteger)index toIndex:(NSUInteger)endIndex andInterval:(CGFloat)interval {
@@ -103,34 +100,6 @@
     }completion:^(BOOL finished){
         [self animateViewInvertFromIndex:index-1 toIndex:endIndex andInterval:interval];
     }];
-}
-
-- (void)setCurrentStep:(NSUInteger)currentStep {
-    if (self.isAnimated == NO) {
-        if (currentStep < self.numberOfSteps) {
-            if (currentStep != _currentStep) {
-                if (_currentStep < currentStep)
-                {
-                    if (currentStep == 0) {
-                        [[self.views objectAtIndex:0] setBackgroundColor:self.tintColor];
-                    } else {
-                        NSUInteger diff = currentStep - _currentStep;
-                        [self animateViewFromIndex:_currentStep * 2 toIndex:(_currentStep * 2)+diff * 2 andInterval:self.animDuration / (CGFloat)diff];
-                    }
-                } else {
-                    if (_currentStep == -1) {
-                        [[self.views objectAtIndex:0] setBackgroundColor:self.tintColor];
-                    } else {
-                        NSUInteger diff = _currentStep - currentStep;
-                        [self animateViewInvertFromIndex:_currentStep * 2 toIndex:(_currentStep * 2) - diff * 2 andInterval:self.animDuration / (CGFloat)diff];
-                    }
-                }
-            }
-            _currentStep = currentStep;
-        }
-    } else {
-        self.futureStep = currentStep;
-    }
 }
 
 - (void)nextStep {
@@ -225,6 +194,81 @@
     }
     self.views       = aviews;
     self.filledViews = afilledViews;
+}
+#pragma mark setter
+
+- (void)setCurrentStep:(NSUInteger)currentStep {
+    if (self.isAnimated == NO) {
+        if (currentStep < self.numberOfSteps) {
+            if (currentStep != _currentStep) {
+                if (_currentStep < currentStep)
+                {
+                    if (currentStep == 0) {
+                        [[self.views objectAtIndex:0] setBackgroundColor:self.tintColor];
+                    } else {
+                        NSUInteger diff = currentStep - _currentStep;
+                        [self animateViewFromIndex:_currentStep * 2 toIndex:(_currentStep * 2)+diff * 2 andInterval:self.animDuration / (CGFloat)diff];
+                    }
+                } else {
+                    if (_currentStep == -1) {
+                        [[self.views objectAtIndex:0] setBackgroundColor:self.tintColor];
+                    } else {
+                        NSUInteger diff = _currentStep - currentStep;
+                        [self animateViewInvertFromIndex:_currentStep * 2 toIndex:(_currentStep * 2) - diff * 2 andInterval:self.animDuration / (CGFloat)diff];
+                    }
+                }
+            }
+            _currentStep = currentStep;
+        }
+    } else {
+        self.futureStep = currentStep;
+    }
+}
+
+-(void) setFilledLineHeight:(CGFloat)filledLineHeight {
+    _filledLineHeight = filledLineHeight;
+}
+
+- (void) setLinesHeight:(CGFloat)linesHeight {
+    _linesHeight = linesHeight;
+}
+
+- (void) setDotsWidth:(CGFloat)dotsWidth {
+    _dotsWidth = dotsWidth;
+}
+
+- (void) setAnimDuration:(NSTimeInterval)animDuration {
+    _animDuration = animDuration;
+}
+
+-(void) setAnimOption:(UIViewAnimationOptions)animOption {
+    _animOption = animOption;
+}
+
+- (void) setBarColor:(UIColor *)barColor {
+    _barColor = barColor;
+}
+
+-(void) setTintColor:(UIColor *)tintColor {
+    _tintColor = tintColor;
+}
+
+- (void) setTitleArr:(NSArray *)titleArr {
+    _titleArr      = titleArr;
+    _numberOfSteps = titleArr.count;
+    [self prepareViews];
+}
+
+- (void) setTitleFont:(UIFont *)titleFont {
+    _titleFont = titleFont;
+}
+
+- (void) setTitleSpace:(CGFloat)titleSpace {
+    _titleSpace = titleSpace;
+}
+
+- (void) setTitleHeight:(CGFloat)titleHeight {
+    _titleHeight = titleHeight;
 }
 
 @end
