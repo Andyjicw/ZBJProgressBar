@@ -16,8 +16,6 @@
 
 @interface ViewController ()
 
-@property (nonatomic, strong) ZBJProgressBar *progressBar;
-
 @end
 
 @implementation ViewController
@@ -25,22 +23,21 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSArray *arr = [NSArray arrayWithObjects:@"待付款",@"已付款",@"待收货",@"已收货",nil];
+    NSArray *arr = [NSArray arrayWithObjects:@"待付款", @"已付款", @"待发货",  @"已收货",  @"一一", nil];
     
-    self.progressBar = [[ZBJProgressBar alloc] initWithFrame:CGRectMake(10, 200, [UIScreen mainScreen].bounds.size.width - 20, 80)];
-    self.progressBar.barColor         = [UIColor grayColor];
-    self.progressBar.tintColor        = [UIColor colorWithRed:40.0/255.0 green:164.0/255.0 blue:176.0/255.0 alpha:1.0];
-    self.progressBar.linesHeight      = 1.0;
-    self.progressBar.filledLineHeight = 2.0;
-    self.progressBar.dotsWidth        = 10.0;
-    self.progressBar.titleFont        = [UIFont fontWithName:@"Helvetica" size:10];
-    self.progressBar.titleSpace       = 10;
-    self.progressBar.currentStep      = 1;
-    self.progressBar.titleHeight      = 40;
-    self.progressBar.animDuration     = 10;
-    self.progressBar.titleArr         = arr;
+    ZBJProgressBar *progressBar = [[ZBJProgressBar alloc] initWithFrame:CGRectMake(10, 200, [UIScreen mainScreen].bounds.size.width - 20, 80)];
     
-    [self.view addSubview:self.progressBar];    
+//    progressBar.barColor         = [UIColor grayColor];
+//    progressBar.tintColor        = [UIColor colorWithRed:40.0/255.0 green:164.0/255.0 blue:176.0/255.0 alpha:1.0];
+//    progressBar.selectLinesHeight      = 1.0;
+//    progressBar.lineHeight = 2.0;
+//    progressBar.dotsWidth        = 10.0;
+//    progressBar.titleFont        = [UIFont fontWithName:@"Helvetica" size:14];
+//    progressBar.titleSpace       = 10;
+//    progressBar.currentStep      = 1;
+    
+    progressBar.titleArr         = arr;
+    [self.view addSubview:progressBar];
 }
 
 @end

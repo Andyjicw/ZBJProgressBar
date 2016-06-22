@@ -8,40 +8,45 @@
 //  Copyright © 2016年 andy. All rights reserved.
 //
 
-#warning todo
-typedef enum {
-    Center          = 0,    //titleLable全部居中
-    RightCenterLeft = 1     //demo 效果
-}TitleStyle;
-
 #import <UIKit/UIKit.h>
 
 @interface ZBJProgressBar : UIView
-///当前步数 default is 0
+
+/**
+ *  当前进度，从0开始，默认为0
+ */
 @property (nonatomic) NSUInteger currentStep;
-///未进行线的高度 default is 1
-@property (nonatomic) CGFloat filledLineHeight;
-///已进行线的高度 default is 2
-@property (nonatomic) CGFloat linesHeight;
-///圆点半径 default is 10
+/**
+ *  线的高度(未进行) 默认:1.f
+ */
+@property (nonatomic) CGFloat lineHeight;
+/**
+ *  已进行线的高度 默认:2.f
+ */
+@property (nonatomic) CGFloat selectLinesHeight;
+/**
+ *  圆点直径 默认:10.f
+ */
 @property (nonatomic) CGFloat dotsWidth;
-///动画时间 default is 0.6
-@property (nonatomic) NSTimeInterval animDuration;
-///动画选项 default is UIViewAnimationOptionCurveEaseIn
-@property (nonatomic) UIViewAnimationOptions animOption;
-///未进行进度颜色 default is [UIColor grayColor]
+/**
+ *  进度条颜色(未进行) 默认:[UIColor grayColor]
+ */
 @property (nonatomic, strong) UIColor *barColor;
-///已进行进度颜色 default is [UIColor whiteColor]
+/**
+ *  进度条颜色(已进行) 默认:[UIColor colorWithRed:40.0/255.0 green:164.0/255.0 blue:176.0/255.0 alpha:1.0]
+ */
 @property (nonatomic, strong) UIColor *tintColor;
-///标题数组
+/**
+ *  标题数组
+ */
 @property (nonatomic, strong) NSArray *titleArr;
-///标题字体 default is [UIFont systemFontOfSize:14]
+/**
+ *  标题字体 默认:[UIFont systemFontOfSize:14]
+ */
 @property (nonatomic, strong) UIFont  *titleFont;
-///标题与进度条间隔 default is 10.f
+/**
+ *  标题与进度条间隔 默认:10.f
+ */
 @property (nonatomic, assign) CGFloat titleSpace;
-///标题高度 default is 20
-@property (nonatomic, assign) CGFloat titleHeight;
-///标题类型 default is 
-@property TitleStyle titleStyle;
 
 @end

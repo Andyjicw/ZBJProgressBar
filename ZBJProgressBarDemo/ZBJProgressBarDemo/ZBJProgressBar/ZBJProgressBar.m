@@ -12,44 +12,27 @@
 
 @interface ZBJProgressBar()
 
-@property (nonatomic, assign) BOOL      isAnimated;
-@property (nonatomic, assign) NSInteger futureStep;
-@property (nonatomic, strong) NSArray   *views;
-@property (nonatomic, strong) NSArray   *filledViews;
-@property (nonatomic, strong) UIView    *showLabelView;
-
-///共计步数
-@property (nonatomic) NSUInteger numberOfSteps;
-
 @end
 
 @implementation ZBJProgressBar
 
-#pragma mark -  Life
+#pragma mark -  LifeCycle
 
-- (void)defaultInit {
-    self.numberOfSteps    = 4;
-    self.currentStep      = 0;
-    self.filledLineHeight = 1.f;
-    self.linesHeight      = 2.f;
-    self.dotsWidth        = 10.f;
-    self.animDuration     = .6f;
-    self.animOption       = UIViewAnimationOptionCurveEaseIn;
-    self.barColor         = [UIColor grayColor];
-    self.tintColor        = [UIColor whiteColor];
-    self.titleFont        = [UIFont systemFontOfSize:14];
-    self.titleSpace       = 10.f;
-    self.titleHeight      = 20.f;
-    
-    self.isAnimated       = NO;
-    self.futureStep       = -1;
-    self.showLabelView    = [[UIView alloc] init];
+- (void) common {
+    _currentStep       = 0;
+    _tintColor         = [UIColor colorWithRed:40.0/255.0 green:164.0/255.0 blue:176.0/255.0 alpha:1.0];
+    _barColor          = [UIColor grayColor];
+    _titleFont         = [UIFont systemFontOfSize:14];
+    _titleSpace        = 10.f;
+    _dotsWidth         = 10.f;
+    _lineHeight        = 1.f;
+    _selectLinesHeight = 2.f;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        [self defaultInit];
+        [self common];
     }
     return self;
 }
@@ -57,208 +40,121 @@
 - (id) initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        [self defaultInit];
+        [self common];
     }
     return self;
 }
 
-- (void)animateViewFromIndex:(NSUInteger)index toIndex:(NSUInteger)endIndex andInterval:(CGFloat)interval {
-    if (index > endIndex) {
-        self.isAnimated = NO;
-        if (self.futureStep != -1) {
-            NSInteger step  = self.futureStep;
-            self.futureStep = -1;
-            [self setCurrentStep:step];
-        }
-        return;
-    }
-    [UIView animateWithDuration:interval delay:0.f options:self.animOption animations:^{
-        
-        self.isAnimated      = YES;
-        UIView *filledDot    = [self.filledViews objectAtIndex:index];
-        UIView *notFilledDot = [self.views objectAtIndex:index];
-        
-        [self.showLabelView setFrame:CGRectMake(0, self.showLabelView.frame.origin.y, (index + 3) / 2 * self.frame.size.width / self.numberOfSteps, self.showLabelView.frame.size.height)];
-        [filledDot setFrame:CGRectMake(filledDot.frame.origin.x, filledDot.frame.origin.y, notFilledDot.frame.size.width, filledDot.frame.size.height)];
-    }completion:^(BOOL finished){
-        [self animateViewFromIndex:index + 1 toIndex:endIndex andInterval:interval];
-    }];
-}
+#pragma mark - setUpView
 
-- (void)animateViewInvertFromIndex:(NSUInteger)index toIndex:(NSUInteger)endIndex andInterval:(CGFloat)interval {
-    if (index <= endIndex) {
-        self.isAnimated = NO;
-        if (self.futureStep != -1) {
-            NSInteger step = self.futureStep;
-            self.futureStep = -1;
-            [self setCurrentStep:step];
-        }
-        return;
-    }
-    [UIView animateWithDuration:interval delay:0.f options:self.animOption animations:^{
-        self.isAnimated = YES;
-        UIView *filledDot = [self.filledViews objectAtIndex:index];
-        [filledDot setFrame:CGRectMake(filledDot.frame.origin.x, filledDot.frame.origin.y, 0, filledDot.frame.size.height)];
-    }completion:^(BOOL finished){
-        [self animateViewInvertFromIndex:index-1 toIndex:endIndex andInterval:interval];
-    }];
-}
-
-- (void)nextStep {
-    if (self.currentStep != self.numberOfSteps)
-        [self setCurrentStep:self.currentStep + 1];
-}
-
-- (void)prevStep {
-    if (self.currentStep != -1)
-        [self setCurrentStep:self.currentStep - 1];
-}
-
-- (void) prepareViews {
+- (void) setUp {
     
-    NSMutableArray *aviews       = [[NSMutableArray alloc] init];
-    NSMutableArray *afilledViews = [[NSMutableArray alloc] init];
+    CGFloat padding = (self.frame.size.width - self.titleArr.count * self.dotsWidth) / (self.titleArr.count - 1) / 2 + self.dotsWidth / 2;
     
-    CGFloat padding = (self.frame.size.width - self.dotsWidth) / (self.numberOfSteps - 1);
-    double labWidth = self.frame.size.width / self.numberOfSteps;
-    
-    self.showLabelView.frame                  = CGRectMake(0, self.titleSpace + self.frame.size.height / 2, labWidth, self.titleHeight);
-    self.showLabelView.backgroundColor        = [UIColor clearColor];
-    self.showLabelView.clipsToBounds          = YES;
-    self.showLabelView.userInteractionEnabled = YES;
-    
-    for (int i = 0; i < self.numberOfSteps; i++) {
-        UIView *round = [[UIView alloc] initWithFrame:CGRectMake(i * padding, self.frame.size.height / 2 - self.dotsWidth / 2, self.dotsWidth, self.dotsWidth)];
-        round.layer.cornerRadius = self.dotsWidth / 2;
-        if (i == 0) {
-            round.backgroundColor = self.tintColor;
-        } else {
-            round.backgroundColor = self.barColor;
-        }
-        
-        UIView *filledround = [[UIView alloc] initWithFrame:CGRectMake(i * padding, self.frame.size.height / 2 - self.dotsWidth / 2, 0, self.dotsWidth)];
-        filledround.backgroundColor        = self.tintColor;
-        filledround.layer.cornerRadius     = self.dotsWidth / 2;
-        filledround.layer.masksToBounds    = NO;
-        filledround.userInteractionEnabled = NO;
-        
-        [afilledViews addObject:filledround];
-        
-        //lab
-        UILabel *defaultLab  = [[UILabel alloc] init];
-        UILabel *showLab     = [[UILabel alloc] init];
-        
-        defaultLab.frame     = CGRectMake(i * labWidth, self.titleSpace + self.frame.size.height / 2, labWidth, self.titleHeight);
-        showLab.frame        = CGRectMake(i * labWidth, 0, labWidth, self.titleHeight);
-        
-        defaultLab.font      = self.titleFont;
-        showLab.font         = self.titleFont;
-        
-        defaultLab.textColor = self.barColor;
-        showLab.textColor    = self.tintColor;
-        if (0 == i) {
-            defaultLab.textAlignment = NSTextAlignmentLeft;
-            showLab.textAlignment    = NSTextAlignmentLeft;
-        } else if (self.numberOfSteps - 1 == i) {
-            defaultLab.textAlignment = NSTextAlignmentRight;
-            showLab.textAlignment    = NSTextAlignmentRight;
-        } else {
-            defaultLab.textAlignment = NSTextAlignmentCenter;
-            showLab.textAlignment    = NSTextAlignmentCenter;
-            
-            [defaultLab setCenter:CGPointMake(round.center.x, defaultLab.center.y)];
-            [showLab setCenter:CGPointMake(round.center.x, showLab.center.y)];
-            
-        }
-        
-        if (self.titleArr.count > i && self.titleArr.count != 0) {
-            defaultLab.text = self.titleArr[i];
-            showLab.text    = self.titleArr[i];
-        }
-        
-        [aviews addObject:round];
-        if (i < self.numberOfSteps - 1) {
-            UIView *line = [[UIView alloc] initWithFrame:CGRectMake((round.frame.origin.x+round.frame.size.width) - 1, self.frame.size.height / 2 - self.linesHeight / 2, padding, self.linesHeight)];
-            line.backgroundColor = self.barColor;
-            [self addSubview:line];
-            [aviews addObject:line];
-            
-            UIView *filledline = [[UIView alloc] initWithFrame:CGRectMake((round.frame.origin.x+round.frame.size.width) - 1, self.frame.size.height / 2 - self.filledLineHeight / 2, 0, self.filledLineHeight)];
-            filledline.backgroundColor = self.tintColor;
-            [self addSubview:filledline];
-            [afilledViews addObject:filledline];
-        }
-        [self.showLabelView addSubview:showLab];
-        [self addSubview:round];
-        [self addSubview:filledround];
-        [self addSubview:defaultLab];
-        [self addSubview:self.showLabelView];
-    }
-    self.views       = aviews;
-    self.filledViews = afilledViews;
-}
-#pragma mark setter
-
-- (void)setCurrentStep:(NSUInteger)currentStep {
-    if (self.isAnimated == NO) {
-        if (currentStep < self.numberOfSteps) {
-            if (currentStep != _currentStep) {
-                if (_currentStep < currentStep)
-                {
-                    if (currentStep == 0) {
-                        [[self.views objectAtIndex:0] setBackgroundColor:self.tintColor];
-                    } else {
-                        NSUInteger diff = currentStep - _currentStep;
-                        [self animateViewFromIndex:_currentStep * 2 toIndex:(_currentStep * 2)+diff * 2 andInterval:self.animDuration / (CGFloat)diff];
-                    }
-                } else {
-                    if (_currentStep == -1) {
-                        [[self.views objectAtIndex:0] setBackgroundColor:self.tintColor];
-                    } else {
-                        NSUInteger diff = _currentStep - currentStep;
-                        [self animateViewInvertFromIndex:_currentStep * 2 toIndex:(_currentStep * 2) - diff * 2 andInterval:self.animDuration / (CGFloat)diff];
-                    }
-                }
+    for (int i = 0; i <= self.titleArr.count * 2 - 2; i ++) {
+        if (i % 2 == 0) {
+            CGRect rect    = CGRectMake(padding * i / 2,
+                                        (self.frame.size.height - self.dotsWidth) / 4,
+                                        self.dotsWidth,
+                                        self.dotsWidth);
+            CGPoint center = CGPointMake(padding * i + self.dotsWidth / 2,
+                                         self.frame.size.height / 2 + self.titleSpace + (self.frame.size.height / 2 - self.titleSpace) / 2);
+            if (i / 2 <= self.currentStep) {
+                [self addCircle:rect color:self.tintColor];
+                [self setUpTitle:(i / 2) color:self.tintColor center:center];
+            } else {
+                [self addCircle:rect color:self.barColor];
+                [self setUpTitle:(i / 2) color:self.barColor center:center];
             }
-            _currentStep = currentStep;
+            
+        } else {
+            CGPoint start = CGPointMake((i - 1) * padding + self.dotsWidth, self.frame.size.height / 2);
+            CGPoint end   = CGPointMake((i + 1) * padding, self.frame.size.height / 2);
+            if ((i - 1) / 2 >= self.currentStep) {
+                [self addLine:start end:end color:self.barColor lineWidth:self.selectLinesHeight];
+            } else {
+                [self addLine:start end:end color:self.tintColor lineWidth:self.lineHeight];
+            }
         }
-    } else {
-        self.futureStep = currentStep;
     }
 }
 
--(void) setFilledLineHeight:(CGFloat)filledLineHeight {
-    _filledLineHeight = filledLineHeight;
+#pragma mark - draw
+
+- (void) setUpTitle:(NSInteger)index color:(UIColor *)color center:(CGPoint)center {
+    
+    UILabel *lab  = [[UILabel alloc] init];
+    lab.frame     = CGRectMake(0,
+                               self.frame.size.height / 2 + self.titleSpace,
+                               self.frame.size.width / self.titleArr.count,
+                               self.frame.size.height / 2 - self.titleSpace);
+    lab.text      = self.titleArr[index];
+    lab.font      = self.titleFont;
+    lab.textColor = color;
+    if (0 == index) {
+        lab.textAlignment = NSTextAlignmentLeft;
+    } else if (self.titleArr.count - 1 == index) {
+        lab.frame = CGRectMake(center.x - self.frame.size.width / self.titleArr.count + self.dotsWidth / 2,
+                               self.frame.size.height / 2 + self.titleSpace,
+                               self.frame.size.width / self.titleArr.count,
+                               self.frame.size.height / 2 - self.titleSpace);
+        lab.textAlignment = NSTextAlignmentRight;
+    } else {
+        lab.textAlignment = NSTextAlignmentCenter;
+        lab.center = center;
+    }
+    [self addSubview:lab];
+}
+- (void) addCircle:(CGRect)rect color:(UIColor *)color {
+    
+    CAShapeLayer *layer = [CAShapeLayer layer];
+    layer.frame         = rect;
+    layer.fillColor     = color.CGColor;
+    UIBezierPath *path  = [UIBezierPath bezierPathWithOvalInRect:layer.frame];
+    layer.path          = path.CGPath;
+    [self.layer addSublayer:layer];
 }
 
-- (void) setLinesHeight:(CGFloat)linesHeight {
-    _linesHeight = linesHeight;
+- (void) addLine:(CGPoint)startPoint end:(CGPoint)endPoint color:(UIColor *)color lineWidth:(CGFloat)lineWidth {
+    
+    CAShapeLayer *layer = [CAShapeLayer layer];
+    layer.lineWidth     = lineWidth;
+    layer.strokeColor   = color.CGColor;
+    UIBezierPath *path  = [UIBezierPath bezierPath];
+    [path moveToPoint:startPoint];
+    [path addLineToPoint:endPoint];
+    layer.path          = path.CGPath;
+    [self.layer addSublayer:layer];
+}
+
+#pragma mark - setter
+
+- (void) setCurrentStep:(NSUInteger)currentStep {
+    _currentStep = currentStep;
+}
+- (void) setlineHeight:(CGFloat)filledLineHeight {
+    _lineHeight = filledLineHeight;
+}
+
+- (void) setselectLinesHeight:(CGFloat)selectLinesHeight {
+    _selectLinesHeight = selectLinesHeight;
 }
 
 - (void) setDotsWidth:(CGFloat)dotsWidth {
     _dotsWidth = dotsWidth;
 }
 
-- (void) setAnimDuration:(NSTimeInterval)animDuration {
-    _animDuration = animDuration;
-}
-
--(void) setAnimOption:(UIViewAnimationOptions)animOption {
-    _animOption = animOption;
-}
-
 - (void) setBarColor:(UIColor *)barColor {
     _barColor = barColor;
 }
 
--(void) setTintColor:(UIColor *)tintColor {
+- (void) setTintColor:(UIColor *)tintColor {
     _tintColor = tintColor;
 }
 
 - (void) setTitleArr:(NSArray *)titleArr {
-    _titleArr      = titleArr;
-    _numberOfSteps = titleArr.count;
-    [self prepareViews];
+    _titleArr = titleArr;
+    [self setUp];
 }
 
 - (void) setTitleFont:(UIFont *)titleFont {
@@ -267,10 +163,6 @@
 
 - (void) setTitleSpace:(CGFloat)titleSpace {
     _titleSpace = titleSpace;
-}
-
-- (void) setTitleHeight:(CGFloat)titleHeight {
-    _titleHeight = titleHeight;
 }
 
 @end
